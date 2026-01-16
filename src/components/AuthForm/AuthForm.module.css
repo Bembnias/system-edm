@@ -1,0 +1,75 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f2f4f8;
+}
+
+.card {
+  width: 560px;
+  background: white;
+  padding: 40px;
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+h2 {
+  text-align: left;
+  margin-bottom: 24px;
+  font-size: 22px;
+  font-family: "Zalando Sans Expanded", sans-serif; 
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccd;
+  border-radius: 4px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+
+.error {
+  color: #d33;
+  font-size: 13px;
+  text-align: center;
+}
+
+.switchButton {
+  margin-top: 12px;
+  background: none;
+  color: #4a6cf7;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+.switchButton:hover {
+  opacity: 0.8;
+}
