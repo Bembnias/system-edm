@@ -1,4 +1,5 @@
 import { useAuth } from "../context/AuthContext";
+import { UploadForm } from "../components/UploadForm";
 
 export default function Dashboard() {
     const { logout, user, role } = useAuth();
@@ -6,8 +7,8 @@ export default function Dashboard() {
     return (
         <div style={{
             minHeight: "100vh",
-            backgroundColor: "#f4f7f9", // Jasnoszare, profesjonalne tło
-            color: "#2c3e50",           // Ciemna, czytelna czcionka
+            backgroundColor: "#f4f7f9",
+            color: "#2c3e50",
             fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
         }}>
             {/* Pasek boczny / Header */}
@@ -21,9 +22,9 @@ export default function Dashboard() {
             }}>
                 <h2 style={{ margin: 0, color: "#3498db" }}>System e-EDM</h2>
                 <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <span style={{ fontSize: "0.9rem" }}>
-            Zalogowany jako: <strong>{user?.profile.email}</strong>
-          </span>
+                    <span style={{ fontSize: "0.9rem" }}>
+                        Zalogowany jako: <strong>{user?.profile.email}</strong>
+                    </span>
                     <button
                         onClick={logout}
                         style={{
@@ -65,22 +66,34 @@ export default function Dashboard() {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "20px" }}>
                         {role === "Lekarz" ? (
                             <>
+                                {/* Sekcja Deponowania dla Lekarza - RF-04 */}
                                 <section style={cardStyle}>
-                                    <h3>Deponowanie (RF-04)</h3>
-                                    <p>Prześlij nową dokumentację medyczną pacjenta.</p>
-                                    <button style={actionButtonStyle}>Dodaj plik PDF/DICOM</button>
+                                    <h3 style={{ color: "#2980b9" }}>Deponowanie (RF-04)</h3>
+                                    <p style={{ fontSize: "0.9rem", color: "#7f8c8d" }}>
+                                        Prześlij dokumentację medyczną. Plik zostanie automatycznie zaszyfrowany kluczem KMS (RF-06).
+                                    </p>
+                                    <div style={{ marginTop: "15px", padding: "15px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
+                                        <UploadForm />
+                                    </div>
                                 </section>
+
+                                {/* Sekcja Audytu dla Lekarza - RF-10 */}
                                 <section style={cardStyle}>
-                                    <h3>Audyt i dostęp (RF-10)</h3>
-                                    <p>Przeglądaj historię dokumentacji po numerze PESEL.</p>
+                                    <h3 style={{ color: "#2980b9" }}>Audyt i dostęp (RF-10)</h3>
+                                    <p style={{ fontSize: "0.9rem", color: "#7f8c8d" }}>
+                                        Przeglądaj historię dokumentacji po numerze PESEL. Każdy dostęp jest logowany (RF-11).
+                                    </p>
                                     <button style={actionButtonStyle}>Wyszukaj pacjenta</button>
                                 </section>
                             </>
                         ) : (
+                            /* Widok dla Pacjenta - RF-02 */
                             <section style={{ ...cardStyle, gridColumn: "1 / -1" }}>
-                                <h3>Moja Dokumentacja (RF-02)</h3>
-                                <p>Tutaj znajdziesz swoje wyniki badań i karty pacjenta.</p>
-                                <button style={actionButtonStyle}>Pobierz dokumentację</button>
+                                <h3 style={{ color: "#2980b9" }}>Moja Dokumentacja (RF-02)</h3>
+                                <p style={{ fontSize: "0.9rem", color: "#7f8c8d" }}>
+                                    Tutaj znajdziesz swoje wyniki badań i karty pacjenta zdeponowane przez lekarzy.
+                                </p>
+                                <button style={actionButtonStyle}>Pobierz moją dokumentację</button>
                             </section>
                         )}
                     </div>
@@ -91,19 +104,24 @@ export default function Dashboard() {
 }
 
 const cardStyle = {
-    padding: "20px",
+    padding: "25px",
     border: "1px solid #e1e8ed",
-    borderRadius: "8px",
-    backgroundColor: "#fafcfd"
+    borderRadius: "12px",
+    backgroundColor: "#fafcfd",
+    display: "flex",
+    flexDirection: "column" as const,
+    justifyContent: "space-between"
 };
 
 const actionButtonStyle = {
-    padding: "10px 20px",
+    padding: "12px 20px",
     backgroundColor: "#3498db",
     color: "white",
     border: "none",
-    borderRadius: "4px",
+    borderRadius: "6px",
     cursor: "pointer",
     width: "100%",
-    fontWeight: "bold"
+    fontWeight: "bold" as const,
+    marginTop: "15px",
+    transition: "background-color 0.2s"
 };
