@@ -6,17 +6,17 @@ import { DocumentList } from "../components/DocumentList";
 export default function Dashboard() {
     const { logout, user, role } = useAuth();
 
-    // Stany dla modułu wyszukiwania Lekarza (RF-10)
+    // Wspólne stany dla wyszukiwania - używane przez Lekarza (RF-10) i Pacjenta (RF-02)
     const [searchQuery, setSearchQuery] = useState('');
     const [activeSearch, setActiveSearch] = useState('');
 
     const handleSearch = () => {
         if (searchQuery.trim().length > 0) {
             setActiveSearch(searchQuery);
-            // Symulacja audytu (RF-11)
-            console.log(`Audyt (RF-11): Lekarz ${user?.profile.email} uzyskał dostęp do dokumentacji: ${searchQuery}`);
+            // Rejestracja zdarzenia audytowego (RF-11)
+            console.log(`Audyt (RF-11): Użytkownik ${user?.profile.email} (${role}) wyświetlił dane dla PESEL: ${searchQuery}`);
         } else {
-            alert("Proszę wpisać PESEL lub identyfikator pacjenta.");
+            alert("Proszę wpisać numer PESEL.");
         }
     };
 
@@ -27,6 +27,7 @@ export default function Dashboard() {
             color: "#2c3e50",
             fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
         }}>
+            {/* Pasek Nawigacji */}
             <nav style={{
                 backgroundColor: "#ffffff",
                 padding: "1rem 2rem",
@@ -44,6 +45,7 @@ export default function Dashboard() {
                 </div>
             </nav>
 
+            {/* Główny Panel */}
             <main style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto" }}>
                 <div style={{
                     backgroundColor: "white",
@@ -67,18 +69,18 @@ export default function Dashboard() {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "20px" }}>
                         {role === "Lekarz" ? (
                             <>
-                                {/* Sekcja Deponowania dla Lekarza - RF-04 */}
+                                {/* WIDOK LEKARZA - Sekcja Deponowania (RF-04) */}
                                 <section style={cardStyle}>
                                     <h3 style={{ color: "#2980b9" }}>Deponowanie (RF-04)</h3>
                                     <p style={{ fontSize: "0.9rem", color: "#7f8c8d" }}>
-                                        Prześlij dokumentację medyczną. Plik zostanie automatycznie zaszyfrowany kluczem KMS (RF-06).
+                                        Prześlij dokumentację medyczną. Plik zostanie zaszyfrowany kluczem KMS (RF-06).
                                     </p>
                                     <div style={{ marginTop: "15px", padding: "15px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
                                         <UploadForm />
                                     </div>
                                 </section>
 
-                                {/* Sekcja Audytu i Wyszukiwania dla Lekarza - RF-10 */}
+                                {/* WIDOK LEKARZA - Sekcja Audytu (RF-10) */}
                                 <section style={cardStyle}>
                                     <h3 style={{ color: "#2980b9" }}>Audyt i dostęp (RF-10)</h3>
                                     <p style={{ fontSize: "0.9rem", color: "#7f8c8d" }}>
@@ -97,7 +99,6 @@ export default function Dashboard() {
                                         </button>
                                     </div>
 
-                                    {/* Wyświetlanie wyników wyszukiwania dla Lekarza */}
                                     {activeSearch && (
                                         <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
                                             <p style={{ fontSize: '0.85rem' }}>Dokumenty pacjenta: <strong>{activeSearch}</strong></p>
@@ -107,15 +108,32 @@ export default function Dashboard() {
                                 </section>
                             </>
                         ) : (
-                            /* Widok dla Pacjenta - RF-02 */
+                            /* WIDOK PACJENTA - Moja Dokumentacja (RF-02) */
                             <section style={{ ...cardStyle, gridColumn: "1 / -1" }}>
                                 <h3 style={{ color: "#2980b9" }}>Moja Dokumentacja (RF-02)</h3>
                                 <p style={{ fontSize: "0.9rem", color: "#7f8c8d" }}>
-                                    Poniżej znajduje się Twoja dokumentacja medyczna zdeponowana w systemie. Linki są zabezpieczone (Pre-signed URL).
+                                    Wprowadź swój numer PESEL, aby uzyskać dostęp do swoich dokumentów medycznych.
                                 </p>
-                                <div style={{ marginTop: "15px" }}>
-                                    <DocumentList />
+
+                                <div style={{ display: 'flex', gap: '10px', marginTop: '15px', maxWidth: '500px' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Wpisz swój PESEL..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                    <button onClick={handleSearch} style={{ ...actionButtonStyle, marginTop: 0, width: 'auto' }}>
+                                        Wyświetl dokumenty
+                                    </button>
                                 </div>
+
+                                {activeSearch && (
+                                    <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+                                        <p style={{ fontSize: '0.85rem' }}>Twoja dokumentacja dla PESEL: <strong>{activeSearch}</strong></p>
+                                        <DocumentList searchPesel={activeSearch} />
+                                    </div>
+                                )}
                             </section>
                         )}
                     </div>
@@ -125,6 +143,7 @@ export default function Dashboard() {
     );
 }
 
+// Style
 const cardStyle = {
     padding: "25px",
     border: "1px solid #e1e8ed",
