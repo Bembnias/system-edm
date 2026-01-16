@@ -1,42 +1,48 @@
-import { useState } from "react";
-import { AuthForm } from "../components/AuthForm/AuthForm";
-import { useAuthForm } from "../components/AuthForm/useAuthForm";
 import { useAuth } from "../context/AuthContext";
-import Register from "./Register";
 import { AuthLayout } from "../components/AuthLayout/AuthLayout";
 
 export default function Login() {
-  const { submit, error, loading } = useAuthForm("/auth/login");
-  const { login } = useAuth();
-  const [showRegister, setShowRegister] = useState(false);
+    const { login, isAuthenticated, isLoading, user, role } = useAuth();
 
-  const handleLogin = async (data: Record<string, string>) => {
-    const res = await submit(data);
-    login(res.token);
-  };
+    // Jeśli użytkownik jest już zalogowany, pokaż mu informacje o koncie
+    if (isAuthenticated) {
+        return (
+            <AuthLayout>
+                <div style={{ textAlign: 'center', color: 'white' }}>
+                    <h2>Zalogowano pomyślnie!</h2>
+                    <p>Email: {user?.profile.email}</p>
+                    <p>Rola w systemie: <strong>{role}</strong></p>
+                    <button onClick={() => window.location.href = '/'}>Przejdź do panelu</button>
+                </div>
+            </AuthLayout>
+        );
+    }
 
-  if (showRegister) {
     return (
-      <AuthLayout>
-        <Register switchToLogin={() => setShowRegister(false)} />
-      </AuthLayout>
-    );
-  }
+        <AuthLayout>
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+                <h2 style={{ color: 'white' }}>System e-EDM</h2>
+                <p style={{ color: '#ccc' }}>Bezpieczne deponowanie dokumentacji medycznej</p>
 
-  return (
-    <AuthLayout>
-      <AuthForm
-        title="Logowanie"
-        fields={[
-          { name: "email", label: "Email", type: "email" },
-          { name: "password", label: "Hasło", type: "password" },
-        ]}
-        onSubmit={handleLogin}
-        error={error}
-        loading={loading}
-        switchMode={() => setShowRegister(true)}
-        switchText="Nie masz konta? Zarejestruj się"
-      />
-    </AuthLayout>
-  );
+                {isLoading ? (
+                    <p style={{ color: 'white' }}>Ładowanie...</p>
+                ) : (
+                    <button
+                        onClick={() => login()}
+                        style={{
+                            padding: '12px 24px',
+                            fontSize: '16px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Zaloguj się przez AWS Cognito
+                    </button>
+                )}
+            </div>
+        </AuthLayout>
+    );
 }

@@ -1,33 +1,46 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, ReactNode } from "react";
+import { useAuth as useCognitoAuth } from "react-oidc-context";
 
 interface AuthContextType {
+  isAuthenticated: boolean;
+  user: any;
   token: string | null;
-  login: (token: string) => void;
+  login: () => void;
   logout: () => void;
+  isLoading: boolean;
+  role: "Lekarz" | "Pacjent" | null; // Spełnienie wymagania RF-02
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token")
-  );
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const auth = useCognitoAuth();
 
-  const login = (jwt: string) => {
-    localStorage.setItem("token", jwt);
-    setToken(jwt);
-  };
+  // Wyciąganie roli z tokena JWT (wymaganie RF-02 i RF-03)
+  const role = (auth.user?.profile["cognito:groups"] as string[])?.includes("Lekarz")
+      ? "Lekarz"
+      : "Pacjent";
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-  };
+  const login = () => auth.signinRedirect();
+  const logout = () => auth.signoutRedirect();
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+      <AuthContext.Provider value={{
+        isAuthenticated: auth.isAuthenticated,
+        user: auth.user,
+        token: auth.user?.access_token || null,
+        login,
+        logout,
+        isLoading: auth.isLoading,
+        role: auth.isAuthenticated ? role : null
+      }}>
+        {children}
+      </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext)!;
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
+};
